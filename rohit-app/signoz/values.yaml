@@ -1,0 +1,87 @@
+global:
+  cloud: others
+  clusterName: rohit-local-cluster
+  deploymentEnvironment: rohit-cluster
+
+otelCollectorEndpoint: ingest.in.signoz.cloud:443
+otelInsecure: false
+signozApiKey: "nKxNnc6xjp5duBeWUexxfVCP0y9-1UcSX4Bu"
+
+presets:
+  otlpExporter:
+    enabled: true
+  loggingExporter:
+    enabled: false
+
+otelCollectorConfig:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+        http:
+
+    filelog:
+      include: [ /var/log/containers/*.log ]
+      include_file_name: true
+      include_line_number: true
+      start_at: beginning
+
+    k8scluster: {}
+
+    hostmetrics:
+      scrapers:
+        cpu:
+        memory:
+        disk:
+        filesystem:
+        load:
+        network:
+        paging:
+        processes:
+
+    k8sobjects:
+      objects:
+        - name: pods
+        - name: nodes
+
+  processors:
+    batch: {}
+    resource/add_cluster_name:
+      attributes:
+        - action: insert
+          key: k8s.cluster.name
+          value: rohit-local-cluster
+    k8sattributes:
+      auth_type: serviceAccount
+      extract:
+        metadata:
+          - k8s.namespace.name
+          - k8s.pod.name
+          - k8s.pod.uid
+          - k8s.node.name
+          - k8s.pod.phase
+
+  exporters:
+    otlphttp:
+      endpoint: https://ingest.in.signoz.cloud
+      headers:
+        signoz-access-token: "nKxNnc6xjp5duBeWUexxfVCP0y9-1UcSX4Bu"
+
+  extensions:
+    k8s_observer:
+      auth_type: serviceAccount
+      node: ${K8S_NODE_NAME}
+      observe_pods: true
+      observe_nodes: true
+
+  service:
+    extensions: [k8s_observer]
+    pipelines:
+      metrics:
+        receivers: [otlp, k8scluster, hostmetrics, k8sobjects]
+        processors: [batch, resource/add_cluster_name, k8sattributes]
+        exporters: [otlphttp]
+      logs:
+        receivers: [filelog]
+        processors: [batch, resource/add_cluster_name, k8sattributes]
+        exporters: [otlphttp]

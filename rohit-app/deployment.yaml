@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rohit-node
+  namespace: rohit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rohit-node
+  template:
+    metadata:
+      labels:
+        app: rohit-node
+    spec:
+      containers:
+      - name: busybox
+        image: busybox
+        command: ["sleep", "3600"]
+      nodeSelector:
+        disktype: ssd-does-not-exist
