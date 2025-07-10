@@ -5,7 +5,7 @@ global:
 
 otelCollectorEndpoint: ingest.in.signoz.cloud:443
 otelInsecure: false
-signozApiKey: "nKxNnc6xjp5duBeWUexxfVCP0y9-1UcSX4Bu"
+signozApiKey: "<signozApiKey>"
 
 presets:
   otlpExporter:
@@ -65,7 +65,7 @@ otelCollectorConfig:
     otlphttp:
       endpoint: https://ingest.in.signoz.cloud
       headers:
-        signoz-access-token: "nKxNnc6xjp5duBeWUexxfVCP0y9-1UcSX4Bu"
+        signoz-access-token: "<signoz-access-token>"
 
   extensions:
     k8s_observer:
